@@ -1,36 +1,65 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(relativeTime);
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+// @ts-expect-error: owned by ngard
+import { isEqual } from "@ngard/tiny-isequal";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Format currency to IDR
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(amount);
+export function sleep(ms: number = 1000) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// Format date
-export function formatDate(date: string | Date): string {
-  return dayjs(date).format('DD MMM YYYY, HH:mm');
-}
+/**
+ * Generates page numbers for pagination with ellipsis
+ * @param currentPage - Current page number (1-based)
+ * @param totalPages - Total number of pages
+ * @returns Array of page numbers and ellipsis strings
+ *
+ * Examples:
+ * - Small dataset (≤5 pages): [1, 2, 3, 4, 5]
+ * - Near beginning: [1, 2, 3, 4, '...', 10]
+ * - In middle: [1, '...', 4, 5, 6, '...', 10]
+ * - Near end: [1, '...', 7, 8, 9, 10]
+ */
+export function getPageNumbers(currentPage: number, totalPages: number) {
+  const maxVisiblePages = 5 // Maximum number of page buttons to show
+  const rangeWithDots = []
 
-// Format relative time
-export function formatRelativeTime(date: string | Date): string {
-  return dayjs(date).fromNow();
-}
+  if (totalPages <= maxVisiblePages) {
+    // If total pages is 5 or less, show all pages
+    for (let i = 1; i <= totalPages; i++) {
+      rangeWithDots.push(i)
+    }
+  } else {
+    // Always show first page
+    rangeWithDots.push(1)
 
-// Truncate text
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-}
+    if (currentPage <= 3) {
+      // Near the beginning: [1] [2] [3] [4] ... [10]
+      for (let i = 2; i <= 4; i++) {
+        rangeWithDots.push(i)
+      }
+      rangeWithDots.push('...', totalPages)
+    } else if (currentPage >= totalPages - 2) {
+      // Near the end: [1] ... [7] [8] [9] [10]
+      rangeWithDots.push('...')
+      for (let i = totalPages - 3; i <= totalPages; i++) {
+        rangeWithDots.push(i)
+      }
+    } else {
+      // In the middle: [1] ... [4] [5] [6] ... [10]
+      rangeWithDots.push('...')
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+        rangeWithDots.push(i)
+      }
+      rangeWithDots.push('...', totalPages)
+    }
+  }
 
+  return rangeWithDots
+}
+export function isDeepEqual(a: unknown, b: unknown): boolean {
+  return isEqual(a, b);
+}
