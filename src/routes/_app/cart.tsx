@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Plus, Minus, Trash2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 function CartPage() {
+  const navigate = useNavigate()
   const { data: cartData, isLoading, isError } = useCart()
   const updateCartItem = useUpdateCartItem()
   const deleteCartItem = useDeleteCartItem()
@@ -32,6 +33,16 @@ function CartPage() {
   }
 
   const cartItems = Array.isArray(cartData?.data?.cart) ? cartData.data.cart : []
+
+  const handleCheckout = (restaurantCart: typeof cartItems[0]) => {
+    // Save checkout data to localStorage
+    localStorage.setItem('checkoutData', JSON.stringify({
+      restaurant: restaurantCart.restaurant,
+      items: restaurantCart.items,
+      subtotal: restaurantCart.subtotal
+    }))
+    navigate({ to: '/checkout' })
+  }
 
   return (
     <main className="flex-1 bg-background pt-20 pb-12">
@@ -142,7 +153,6 @@ function CartPage() {
                         </div>
                       ))}
                     </div>
-
                     {/* Total and Checkout */}
                     <div className="flex items-center justify-between pt-4 border-t">
                       <div>
@@ -151,8 +161,11 @@ function CartPage() {
                           {formatPrice(calculateTotal(cartRestaurant.items))}
                         </p>
                       </div>
-                      <Button asChild className="bg-red-600 hover:bg-red-700">
-                        <Link to="/checkout">Checkout</Link>
+                      <Button 
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={() => handleCheckout(cartRestaurant)}
+                      >
+                        Checkout
                       </Button>
                     </div>
                   </CardContent>

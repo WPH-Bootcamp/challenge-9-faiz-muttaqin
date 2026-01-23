@@ -126,7 +126,7 @@ function ReviewDialog({ transactionId, restaurantName, onSuccess }: ReviewDialog
 
 function OrdersPage() {
     const navigate = useNavigate()
-    const [activeTab, setActiveTab] = useState('done')
+    const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [showLogoutDialog, setShowLogoutDialog] = useState(false)
     
@@ -164,13 +164,13 @@ function OrdersPage() {
             .slice(0, 2)
     }
 
-    const formatPrice = (price: number) => {
-        return `Rp${price.toLocaleString('id-ID')}`
+    const formatPrice = (price: number | undefined | null) => {
+        return `Rp${(price || 0).toLocaleString('id-ID')}`
     }
 
     const orders = ordersData?.data?.orders || []
     const filteredOrders = orders.filter((order) =>
-        searchQuery === '' || order.restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
+        searchQuery === '' || order?.restaurant?.name?.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
@@ -291,10 +291,10 @@ function OrdersPage() {
                                                             {/* Restaurant Header */}
                                                             <Link
                                                                 to="/restaurant/$restaurantId"
-                                                                params={{ restaurantId: String(order.restaurant.id) }}
+                                                                params={{ restaurantId: String(order?.restaurant?.id || '') }}
                                                                 className="flex items-center gap-2 hover:opacity-80"
                                                             >
-                                                                {order.restaurant.logo ? (
+                                                                {order?.restaurant?.logo ? (
                                                                     <img
                                                                         src={order.restaurant.logo}
                                                                         alt={order.restaurant.name}
@@ -303,17 +303,17 @@ function OrdersPage() {
                                                                 ) : (
                                                                     <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
                                                                         <span className="text-white font-bold text-xs">
-                                                                            {order.restaurant.name.slice(0, 2).toUpperCase()}
+                                                                            {order?.restaurant?.name?.slice(0, 2).toUpperCase() || 'R'}
                                                                         </span>
                                                                     </div>
                                                                 )}
-                                                                <span className="font-semibold">{order.restaurant.name}</span>
+                                                                <span className="font-semibold">{order?.restaurant?.name || 'Restaurant'}</span>
                                                             </Link>
 
                                                             {/* Order Items */}
-                                                            {order.items.map((item) => (
-                                                                <div key={item.id} className="flex items-center gap-4">
-                                                                    {item.menu.image ? (
+                                                            {order.items?.map((item, index) => (
+                                                                <div key={item?.id || index} className="flex items-center gap-4">
+                                                                    {item?.menu?.image ? (
                                                                         <img
                                                                             src={item.menu.image}
                                                                             alt={item.menu.foodName}
@@ -325,24 +325,24 @@ function OrdersPage() {
                                                                         </div>
                                                                     )}
                                                                     <div className="flex-1">
-                                                                        <h3 className="font-semibold">{item.menu.foodName}</h3>
+                                                                        <h3 className="font-semibold">{item?.menu?.foodName || 'Unknown Item'}</h3>
                                                                         <p className="text-sm text-muted-foreground">
-                                                                            {item.quantity} x {formatPrice(item.price)}
+                                                                            {item?.quantity || 0} x {formatPrice(item?.price || 0)}
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                            ))}
+                                                            )) || []}
 
                                                             {/* Total and Action */}
                                                             <div className="flex items-center justify-between pt-4 border-t">
                                                                 <div>
                                                                     <p className="text-sm text-muted-foreground">Total</p>
-                                                                    <p className="text-xl font-bold">{formatPrice(order.totalPrice)}</p>
+                                                                    <p className="text-xl font-bold">{formatPrice(order?.totalPrice)}</p>
                                                                 </div>
                                                                 {order.status === 'done' && (
                                                                     <ReviewDialog
                                                                         transactionId={order.transactionId}
-                                                                        restaurantName={order.restaurant.name}
+                                                                        restaurantName={order?.restaurant?.name || 'Restaurant'}
                                                                         onSuccess={() => refetch()}
                                                                     />
                                                                 )}
