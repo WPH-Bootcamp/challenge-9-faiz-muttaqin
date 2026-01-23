@@ -46,7 +46,7 @@ const orders = [
     },
 ]
 
-function ReviewDialog({ orderId }: { orderId: number }) {
+function ReviewDialog({ orderId: _orderId }: { orderId: number }) {
     const [rating, setRating] = useState(0)
     const [review, setReview] = useState('')
 
@@ -111,7 +111,9 @@ function OrdersPage() {
     })
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <main className="flex-1 bg-background pt-20 pb-12">
+            <div className="container mx-auto px-4">
+                <div className="max-w-4xl mx-auto space-y-6">
             <h1 className="text-3xl font-bold">My Orders</h1>
 
             {/* Search */}
@@ -181,7 +183,9 @@ function OrdersPage() {
                     </Card>
                 ))}
             </div>
+            </div>
         </div>
+        </main>
     )
 }
 

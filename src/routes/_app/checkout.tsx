@@ -64,7 +64,9 @@ function CheckoutPage() {
   const total = itemsTotal + deliveryFee + serviceFee
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <main className="flex-1 bg-background pt-20 pb-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -214,7 +216,9 @@ function CheckoutPage() {
           </Card>
         </div>
       </div>
-    </div>
+        </div>
+      </div>
+    </main>
   )
 }
 

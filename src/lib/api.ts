@@ -30,12 +30,14 @@ api.interceptors.response.use(
       // Trigger storage event for other components
       window.dispatchEvent(new Event('storage'))
 
-      // Redirect to sign in if not already on auth pages
+      // Only redirect to sign-in if on protected pages
       const currentPath = window.location.pathname
-      if (
-        !currentPath.includes('/sign-in') &&
-        !currentPath.includes('/sign-up')
-      ) {
+      const protectedPaths = ['/profile', '/cart', '/checkout', '/orders']
+      const isProtectedPage = protectedPaths.some(path => currentPath.startsWith(path))
+      
+      if (isProtectedPage && 
+          !currentPath.includes('/sign-in') &&
+          !currentPath.includes('/sign-up')) {
         window.location.href = '/sign-in'
       }
     }

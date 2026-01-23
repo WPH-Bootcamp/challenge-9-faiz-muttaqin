@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
-import { useRecommendedRestaurants } from '@/lib/hooks/useRestaurants'
+import { useRecommendedRestaurants, useBestSellerRestaurants } from '@/lib/hooks/useRestaurants'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const heroImages = [
@@ -49,9 +49,17 @@ function HomePage() {
   }, [])
   
   // Only fetch recommendations when authenticated
-  const { data: recommendedData, isLoading, isError } = useRecommendedRestaurants({
+  const { data: recommendedData, isLoading: isLoadingRecommended, isError: isErrorRecommended } = useRecommendedRestaurants({
     enabled: isAuthenticated,
   })
+
+  // Fetch best sellers when not authenticated
+  const { data: bestSellerData, isLoading: isLoadingBestSeller, isError: isErrorBestSeller } = useBestSellerRestaurants(20)
+
+  // Use the appropriate data based on auth status
+  const data = isAuthenticated ? recommendedData : bestSellerData
+  const isLoading = isAuthenticated ? isLoadingRecommended : isLoadingBestSeller
+  const isError = isAuthenticated ? isErrorRecommended : isErrorBestSeller
 
   // Auto carousel
   useEffect(() => {
@@ -63,11 +71,11 @@ function HomePage() {
   }, [])
 
   // Access the recommendations array from the nested data structure
-  // Handle both formats: data.recommendations or data as array
+  // Handle both formats: data.recommendations or data.restaurants (best-seller)
   const getRestaurants = () => {
-    if (!recommendedData?.data) return []
-    if (Array.isArray(recommendedData.data)) return recommendedData.data
-    return recommendedData.data.recommendations || []
+    if (!data?.data) return []
+    if (Array.isArray(data.data)) return data.data
+    return data.data.recommendations || data.data.restaurants || []
   }
   
   const restaurants = getRestaurants()
@@ -172,26 +180,7 @@ function HomePage() {
               )}
             </div>
 
-            {!isAuthenticated ? (
-              <Alert className="border-primary/50 bg-primary/5">
-                <AlertCircle className="h-4 w-4 text-primary" />
-                <AlertDescription className="flex items-center justify-between">
-                  <span>Please sign in to view personalized restaurant recommendations.</span>
-                  <div className="flex gap-2 ml-4">
-                    <Link to="/sign-in">
-                      <Button variant="outline" size="sm">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link to="/sign-up">
-                      <Button size="sm" className="bg-primary">
-                        Sign Up
-                      </Button>
-                    </Link>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ) : isError ? (
+            {isError ? (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
@@ -223,7 +212,7 @@ function HomePage() {
                         <CardContent className="p-0">
                           <div className="flex items-center gap-4 p-4">
                             {/* Restaurant Logo */}
-                            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+                            <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-muted">
                               <img
                                 src={restaurant.logo || restaurant.images[0]}
                                 alt={restaurant.name}

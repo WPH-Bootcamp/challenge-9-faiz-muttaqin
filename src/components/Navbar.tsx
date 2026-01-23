@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { useLogout } from '@/lib/hooks/useAuth'
+import { useCart } from '@/lib/hooks/useCart'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -39,10 +40,18 @@ export function Navbar() {
         const userStr = localStorage.getItem('user')
         return userStr ? JSON.parse(userStr) : null
     })
-    const [cartCount] = useState(2) // TODO: Get from cart API
     const [isScrolled, setIsScrolled] = useState(pathname !== '/')
     const [showLogoutDialog, setShowLogoutDialog] = useState(false)
     const logout = useLogout()
+
+    // Fetch cart data to get count (only when user is logged in)
+    const { data: cartData } = useCart({ enabled: !!user })
+    
+    // Calculate total cart count
+    const cartItems = Array.isArray(cartData?.data) ? cartData.data : []
+    const cartCount = cartItems.reduce((total, restaurant) => {
+        return total + restaurant.items.reduce((sum, item) => sum + item.quantity, 0)
+    }, 0)
 
 
     const handleLogout = () => {

@@ -52,6 +52,8 @@ export function useLogout() {
     localStorage.removeItem('user')
     // Trigger storage event for other components
     window.dispatchEvent(new Event('storage'))
-    window.location.href = '/sign-in'
+    if (window.location.href !== '/'){
+        window.location.href = '/sign-in'
+    }
   }
 }

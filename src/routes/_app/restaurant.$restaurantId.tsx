@@ -130,7 +130,7 @@ const reviews = [
 ]
 
 function RestaurantDetailPage() {
-  const { restaurantId } = Route.useParams()
+  const { restaurantId: _restaurantId } = Route.useParams()
   const [quantities, setQuantities] = useState<Record<number, number>>({})
 
   const updateQuantity = (itemId: number, delta: number) => {
@@ -145,10 +145,12 @@ function RestaurantDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <main className="flex-1 bg-background pt-20 pb-12">
+      <div className="container mx-auto px-4">
+        <div className="space-y-6">
       {/* Image Gallery */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="aspect-[4/3] rounded-lg overflow-hidden">
+        <div className="aspect-4/3 rounded-lg overflow-hidden">
           <img
             src={restaurant.images[0]}
             alt="Restaurant main"
@@ -157,7 +159,7 @@ function RestaurantDetailPage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           {restaurant.images.slice(1, 4).map((image, index) => (
-            <div key={index} className="aspect-[4/3] rounded-lg overflow-hidden">
+            <div key={index} className="aspect-4/3 rounded-lg overflow-hidden">
               <img
                 src={image}
                 alt={`Restaurant ${index + 2}`}
@@ -361,7 +363,9 @@ function RestaurantDetailPage() {
           <Button variant="outline">Show More</Button>
         </div>
       </div>
-    </div>
+      </div>
+      </div>
+    </main>
   )
 }
 

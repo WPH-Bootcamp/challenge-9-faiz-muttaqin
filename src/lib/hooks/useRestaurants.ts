@@ -25,6 +25,7 @@ export interface Restaurant {
 export interface RestaurantsResponse {
   data: {
     recommendations?: Restaurant[]
+    restaurants?: Restaurant[]
   } | Restaurant[]
 }
 

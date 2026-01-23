@@ -8,8 +8,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
 import { useProfile, useUpdateProfile } from '@/lib/hooks/useProfile'
 import { useLogout } from '@/lib/hooks/useAuth'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -93,7 +91,7 @@ function ProfilePage() {
   }
 
   const onSubmit = (data: ProfileForm) => {
-    const updateData: any = { ...data }
+    const updateData: ProfileForm & { avatar?: File } = { ...data }
     if (avatarFile) {
       updateData.avatar = avatarFile
     }
@@ -121,10 +119,8 @@ function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 bg-background pt-20 pb-12">
+    <>
+    <main className="flex-1 bg-background pt-20 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -181,7 +177,7 @@ function ProfilePage() {
               </aside>
 
               {/* Main Content */}
-              <main className="md:col-span-3">
+              <div className="md:col-span-3">
                 <Card>
                   <CardContent className="p-8">
                     <div className="flex items-center justify-between mb-6">
@@ -357,13 +353,11 @@ function ProfilePage() {
                     ) : null}
                   </CardContent>
                 </Card>
-              </main>
+              </div>
             </div>
           </div>
         </div>
       </main>
-
-      <Footer />
 
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
@@ -382,7 +376,7 @@ function ProfilePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   )
 }
 
