@@ -20,7 +20,7 @@ export function Footer() {
                             <h3 className="font-semibold mb-3">Follow on Social Media</h3>
                             <div className="flex gap-3">
                                 <a
-                                    href="https://facebook.com"
+                                    href="https://www.facebook.com/faiz.muttaqin.56"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center transition-colors"
@@ -30,7 +30,7 @@ export function Footer() {
                                     </svg>
                                 </a>
                                 <a
-                                    href="https://instagram.com"
+                                    href="https://www.instagram.com/faizmuttaqin"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center transition-colors"
@@ -40,7 +40,7 @@ export function Footer() {
                                     </svg>
                                 </a>
                                 <a
-                                    href="https://linkedin.com"
+                                    href="https://www.linkedin.com/in/faizmuttaqin/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center transition-colors"
