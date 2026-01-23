@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { MapPin, FileText, LogOut, Edit2,AlertCircle } from 'lucide-react'
+import { MapPin, FileText, LogOut, Edit2, AlertCircle, Camera } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -35,6 +35,8 @@ function ProfilePage() {
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const { data: profileData, isLoading, isError } = useProfile()
   const updateProfileMutation = useUpdateProfile()
   const logout = useLogout()
@@ -58,16 +60,16 @@ function ProfilePage() {
 
   // Update form when data loads
   useEffect(() => {
-    if (profileData?.data.user) {
+    if (profileData?.data) {
       reset({
-        name: profileData.data.user.name,
-        email: profileData.data.user.email,
-        phone: profileData.data.user.phone,
+        name: profileData.data.name,
+        email: profileData.data.email,
+        phone: profileData.data.phone,
       })
     }
   }, [profileData, reset])
 
-  const user = profileData?.data.user
+  const user = profileData?.data
 
   const getInitials = (name: string) => {
     return name
@@ -78,10 +80,29 @@ function ProfilePage() {
       .slice(0, 2)
   }
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setAvatarFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const onSubmit = (data: ProfileForm) => {
-    updateProfileMutation.mutate(data, {
+    const updateData: any = { ...data }
+    if (avatarFile) {
+      updateData.avatar = avatarFile
+    }
+    
+    updateProfileMutation.mutate(updateData, {
       onSuccess: () => {
         setIsEditing(false)
+        setAvatarFile(null)
+        setAvatarPreview(null)
       },
     })
   }
@@ -94,6 +115,8 @@ function ProfilePage() {
         phone: user.phone,
       })
     }
+    setAvatarFile(null)
+    setAvatarPreview(null)
     setIsEditing(false)
   }
 
@@ -201,13 +224,33 @@ function ProfilePage() {
                     ) : user ? (
                       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Avatar */}
-                        <div className="flex justify-center">
-                          <Avatar className="h-24 w-24">
-                            <AvatarImage src={user.avatar} />
-                            <AvatarFallback className="text-2xl">
-                              {getInitials(user.name)}
-                            </AvatarFallback>
-                          </Avatar>
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="relative">
+                            <Avatar className="h-24 w-24">
+                              <AvatarImage src={avatarPreview || user.avatar} />
+                              <AvatarFallback className="text-2xl">
+                                {getInitials(user.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            {isEditing && (
+                              <label
+                                htmlFor="avatar-upload"
+                                className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors"
+                              >
+                                <Camera className="h-4 w-4" />
+                                <input
+                                  id="avatar-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleAvatarChange}
+                                  className="hidden"
+                                />
+                              </label>
+                            )}
+                          </div>
+                          {isEditing && avatarPreview && (
+                            <p className="text-sm text-muted-foreground">New profile picture selected</p>
+                          )}
                         </div>
 
                         {/* User Info */}
