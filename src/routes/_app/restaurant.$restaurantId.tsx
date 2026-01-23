@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Star, MapPin, Plus, Minus, Share2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useRestaurantDetail } from '@/lib/hooks/useRestaurants'
-import { useCart, useAddToCart } from '@/lib/hooks/useCart'
+import { useCart, useAddToCart, useUpdateCartItem, useDeleteCartItem } from '@/lib/hooks/useCart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
@@ -21,12 +21,14 @@ function RestaurantDetailPage() {
   // Fetch cart to get actual quantities
   const { data: cartData } = useCart()
   
-  // Add to cart mutation
+  // Cart mutations
   const addToCart = useAddToCart()
+  const updateCartItem = useUpdateCartItem()
+  const deleteCartItem = useDeleteCartItem()
 
   const restaurant = restaurantData?.data
 
-  // Get actual cart quantities for this restaurant
+  // Get actual cart quantities and item IDs for this restaurant
   const cartQuantities = useMemo(() => {
     const quantities: Record<number, number> = {}
     if (cartData?.data?.cart && Array.isArray(cartData.data.cart) && restaurant) {
@@ -40,21 +42,27 @@ function RestaurantDetailPage() {
     return quantities
   }, [cartData, restaurant])
 
-  // Sync optimistic quantities with cart when cart updates
-  useEffect(() => {
-    setOptimisticQuantities(prev => {
-      const newQuantities = { ...prev }
-      // Update with actual cart values
-      Object.keys(cartQuantities).forEach(menuId => {
-        newQuantities[Number(menuId)] = cartQuantities[Number(menuId)]
-      })
-      return newQuantities
-    })
-  }, [cartQuantities])
+  // Get cart item IDs by menu ID
+  const cartItemIds = useMemo(() => {
+    const ids: Record<number, number> = {}
+    if (cartData?.data?.cart && Array.isArray(cartData.data.cart) && restaurant) {
+      const restaurantCart = cartData.data.cart.find(r => r.restaurant.id === restaurant.id)
+      if (restaurantCart) {
+        restaurantCart.items.forEach(item => {
+          ids[item.menu.id] = item.id
+        })
+      }
+    }
+    return ids
+  }, [cartData, restaurant])
 
   // Get display quantity (optimistic or actual)
   const getQuantity = (menuId: number) => {
-    return optimisticQuantities[menuId] || cartQuantities[menuId] || 0
+    // Use optimistic if it exists and differs from cart, otherwise use cart value
+    if (menuId in optimisticQuantities) {
+      return optimisticQuantities[menuId]
+    }
+    return cartQuantities[menuId] || 0
   }
 
   // Handle add to cart with optimistic update
@@ -75,6 +83,15 @@ function RestaurantDetailPage() {
       restaurantId: restaurant.id,
       menuId: menuId,
       quantity: 1
+    }, {
+      onSuccess: () => {
+        // Clear optimistic state once API confirms
+        setOptimisticQuantities(prev => {
+          const updated = { ...prev }
+          delete updated[menuId]
+          return updated
+        })
+      }
     })
   }
 
@@ -84,6 +101,9 @@ function RestaurantDetailPage() {
     if (currentQty <= 0) return
     
     const newQty = currentQty - 1
+    const itemId = cartItemIds[menuId]
+    
+    if (!itemId) return
     
     // Optimistic update
     setOptimisticQuantities(prev => ({
@@ -91,12 +111,26 @@ function RestaurantDetailPage() {
       [menuId]: newQty
     }))
     
-    // API call (add negative quantity to decrease)
-    if (restaurant) {
-      addToCart.mutate({
-        restaurantId: restaurant.id,
-        menuId: menuId,
-        quantity: -1
+    // API call - delete if quantity is 0, otherwise update
+    if (newQty === 0) {
+      deleteCartItem.mutate(itemId, {
+        onSuccess: () => {
+          setOptimisticQuantities(prev => {
+            const updated = { ...prev }
+            delete updated[menuId]
+            return updated
+          })
+        }
+      })
+    } else {
+      updateCartItem.mutate({ id: itemId, quantity: newQty }, {
+        onSuccess: () => {
+          setOptimisticQuantities(prev => {
+            const updated = { ...prev }
+            delete updated[menuId]
+            return updated
+          })
+        }
       })
     }
   }
