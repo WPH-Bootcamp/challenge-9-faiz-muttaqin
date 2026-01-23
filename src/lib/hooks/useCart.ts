@@ -1,39 +1,46 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type ErrorResponse } from '../api'
 
 export interface CartItem {
   id: number
-  user_id: number
-  resto_id: number
-  menu_id: number
-  quantity: number
   menu: {
     id: number
-    food_name: string
+    foodName: string
     price: number
     type: string
-    resto_id: number
     image?: string
   }
+  quantity: number
+  itemTotal: number
 }
 
 export interface CartRestaurant {
-  resto_id: number
-  resto_name: string
-  resto_logo?: string
+  restaurant: {
+    id: number
+    name: string
+    logo?: string
+  }
   items: CartItem[]
+  subtotal: number
 }
 
 export interface CartResponse {
   success: boolean
   message: string
-  data: CartRestaurant[]
+  data: {
+    cart: CartRestaurant[]
+    summary: {
+      totalItems: number
+      totalPrice: number
+      restaurantCount: number
+    }
+  }
 }
 
 export interface AddToCartRequest {
-  resto_id: number
-  menu_id: number
+  restaurantId: number
+  menuId: number
   quantity: number
 }
 
@@ -44,7 +51,7 @@ export interface UpdateCartRequest {
 // Get cart items
 export function useCart(options?: { enabled?: boolean }) {
   const hasAuthToken = !!localStorage.getItem('authToken')
-  
+
   return useQuery<CartResponse, AxiosError<ErrorResponse>>({
     queryKey: ['cart'],
     queryFn: async () => {
@@ -55,8 +62,15 @@ export function useCart(options?: { enabled?: boolean }) {
     placeholderData: {
       success: true,
       message: 'No cart data',
-      data: []
-    }
+      data: {
+        cart: [],
+        summary: {
+          totalItems: 0,
+          totalPrice: 0,
+          restaurantCount: 0,
+        },
+      },
+    },
   })
 }
 
@@ -64,15 +78,17 @@ export function useCart(options?: { enabled?: boolean }) {
 export function useAddToCart() {
   const queryClient = useQueryClient()
 
-  return useMutation<CartResponse, AxiosError<ErrorResponse>, AddToCartRequest>({
-    mutationFn: async (data) => {
-      const response = await api.post<CartResponse>('/api/cart', data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] })
-    },
-  })
+  return useMutation<CartResponse, AxiosError<ErrorResponse>, AddToCartRequest>(
+    {
+      mutationFn: async (data) => {
+        const response = await api.post<CartResponse>('/api/cart', data)
+        return response.data
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['cart'] })
+      },
+    }
+  )
 }
 
 // Update cart item quantity

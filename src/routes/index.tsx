@@ -16,12 +16,12 @@ const heroImages = [
 ]
 
 const categories = [
-  { id: 'all', name: 'All Restaurant', icon: '🍔', color: 'bg-red-50' },
-  { id: 'nearby', name: 'Nearby', icon: '📍', color: 'bg-blue-50' },
-  { id: 'discount', name: 'Discount', icon: '💰', color: 'bg-green-50' },
-  { id: 'best-seller', name: 'Best Seller', icon: '🏆', color: 'bg-yellow-50' },
-  { id: 'delivery', name: 'Delivery', icon: '🚚', color: 'bg-purple-50' },
-  { id: 'lunch', name: 'Lunch', icon: '🍱', color: 'bg-pink-50' },
+  { id: 'all', name: 'All Restaurant', icon: '/icon-all-food.png', color: 'bg-red-50' },
+  { id: 'nearby', name: 'Nearby', icon: '/icon-location.png', color: 'bg-blue-50' },
+  { id: 'discount', name: 'Discount', icon: '/icon-discount.png', color: 'bg-green-50' },
+  { id: 'best-seller', name: 'Best Seller', icon: '/icon-best-seller.png', color: 'bg-yellow-50' },
+  { id: 'delivery', name: 'Delivery', icon: '/icon-delivery.png', color: 'bg-purple-50' },
+  { id: 'lunch', name: 'Lunch', icon: '/icon-lunch.png', color: 'bg-pink-50' },
 ]
 
 function HomePage() {
@@ -159,10 +159,14 @@ function HomePage() {
               <Link
                 key={category.id}
                 to="/"
-                className="flex flex-col items-center gap-2 p-4 rounded-xl hover:shadow-md transition-shadow"
+                className="flex flex-col items-center gap-2 rounded-xl hover:shadow-md transition-shadow"
               >
-                <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center text-3xl`}>
-                  {category.icon}
+                <div className={`h-[100px] w-full rounded-lg shadow-xl flex items-center justify-center `}>
+                  <img 
+                    src={category.icon} 
+                    alt={category.name}
+                    className="w-10 h-10 object-contain"
+                  />
                 </div>
                 <span className="text-sm font-medium text-center">{category.name}</span>
               </Link>
@@ -208,7 +212,7 @@ function HomePage() {
                       to="/restaurant/$restaurantId"
                       params={{ restaurantId: String(restaurant.id) }}
                     >
-                      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                      <Card className="overflow-hidden p-0 m-0 hover:shadow-lg transition-shadow cursor-pointer">
                         <CardContent className="p-0">
                           <div className="flex items-center gap-4 p-4">
                             {/* Restaurant Logo */}

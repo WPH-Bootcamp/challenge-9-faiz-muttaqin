@@ -31,7 +31,7 @@ function CartPage() {
     return items.reduce((sum, item) => sum + item.menu.price * item.quantity, 0)
   }
 
-  const cartItems = Array.isArray(cartData?.data) ? cartData.data : []
+  const cartItems = Array.isArray(cartData?.data?.cart) ? cartData.data.cart : []
 
   return (
     <main className="flex-1 bg-background pt-20 pb-12">
@@ -71,39 +71,39 @@ function CartPage() {
             </Card>
           ) : (
             <div className="space-y-6">
-              {cartItems.map((restaurant) => (
-                <Card key={restaurant.resto_id}>
+              {cartItems.map((cartRestaurant) => (
+                <Card key={cartRestaurant.restaurant.id}>
                   <CardContent className="p-6 space-y-4">
                     {/* Restaurant Header */}
                     <Link
                       to="/restaurant/$restaurantId"
-                      params={{ restaurantId: String(restaurant.resto_id) }}
+                      params={{ restaurantId: String(cartRestaurant.restaurant.id) }}
                       className="flex items-center gap-2 hover:opacity-80"
                     >
-                      {restaurant.resto_logo && (
+                      {cartRestaurant.restaurant.logo && (
                         <img
-                          src={restaurant.resto_logo}
-                          alt={restaurant.resto_name}
+                          src={cartRestaurant.restaurant.logo}
+                          alt={cartRestaurant.restaurant.name}
                           className="w-8 h-8 rounded object-cover"
                         />
                       )}
-                      <span className="font-semibold">{restaurant.resto_name}</span>
+                      <span className="font-semibold">{cartRestaurant.restaurant.name}</span>
                       <span className="text-muted-foreground">›</span>
                     </Link>
 
                     {/* Cart Items */}
                     <div className="space-y-4">
-                      {restaurant.items.map((item) => (
+                      {cartRestaurant.items.map((item) => (
                         <div key={item.id} className="flex items-center gap-4">
                           {item.menu.image && (
                             <img
                               src={item.menu.image}
-                              alt={item.menu.food_name}
+                              alt={item.menu.foodName}
                               className="w-20 h-20 rounded object-cover"
                             />
                           )}
                           <div className="flex-1">
-                            <h3 className="font-semibold">{item.menu.food_name}</h3>
+                            <h3 className="font-semibold">{item.menu.foodName}</h3>
                             <p className="text-sm font-semibold text-muted-foreground">
                               {formatPrice(item.menu.price)}
                             </p>
@@ -148,7 +148,7 @@ function CartPage() {
                       <div>
                         <p className="text-sm text-muted-foreground">Total</p>
                         <p className="text-xl font-bold">
-                          {formatPrice(calculateTotal(restaurant.items))}
+                          {formatPrice(calculateTotal(cartRestaurant.items))}
                         </p>
                       </div>
                       <Button asChild className="bg-red-600 hover:bg-red-700">

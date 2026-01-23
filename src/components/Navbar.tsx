@@ -48,9 +48,9 @@ export function Navbar() {
     const { data: cartData } = useCart({ enabled: !!user })
     
     // Calculate total cart count
-    const cartItems = Array.isArray(cartData?.data) ? cartData.data : []
-    const cartCount = cartItems.reduce((total, restaurant) => {
-        return total + restaurant.items.reduce((sum, item) => sum + item.quantity, 0)
+    const cartItems = Array.isArray(cartData?.data?.cart) ? cartData.data.cart : []
+    const cartCount = cartItems.reduce((total, cartRestaurant) => {
+        return total + cartRestaurant.items.reduce((sum, item) => sum + item.quantity, 0)
     }, 0)
 
 
