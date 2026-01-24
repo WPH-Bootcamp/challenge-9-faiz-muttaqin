@@ -9,9 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as InvoiceRouteImport } from './routes/invoice'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InvoicesOrderIdRouteImport } from './routes/invoices.$orderId'
 import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/_auth/sign-in'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -20,11 +20,6 @@ import { Route as AppCheckoutRouteImport } from './routes/_app/checkout'
 import { Route as AppCartRouteImport } from './routes/_app/cart'
 import { Route as AppRestaurantRestaurantIdRouteImport } from './routes/_app/restaurant.$restaurantId'
 
-const InvoiceRoute = InvoiceRouteImport.update({
-  id: '/invoice',
-  path: '/invoice',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -32,6 +27,11 @@ const AppRouteRoute = AppRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoicesOrderIdRoute = InvoicesOrderIdRouteImport.update({
+  id: '/invoices/$orderId',
+  path: '/invoices/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
@@ -73,93 +73,86 @@ const AppRestaurantRestaurantIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/invoice': typeof InvoiceRoute
   '/cart': typeof AppCartRoute
   '/checkout': typeof AppCheckoutRoute
   '/orders': typeof AppOrdersRoute
   '/profile': typeof AppProfileRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
+  '/invoices/$orderId': typeof InvoicesOrderIdRoute
   '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/invoice': typeof InvoiceRoute
   '/cart': typeof AppCartRoute
   '/checkout': typeof AppCheckoutRoute
   '/orders': typeof AppOrdersRoute
   '/profile': typeof AppProfileRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
+  '/invoices/$orderId': typeof InvoicesOrderIdRoute
   '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteRouteWithChildren
-  '/invoice': typeof InvoiceRoute
   '/_app/cart': typeof AppCartRoute
   '/_app/checkout': typeof AppCheckoutRoute
   '/_app/orders': typeof AppOrdersRoute
   '/_app/profile': typeof AppProfileRoute
   '/_auth/sign-in': typeof AuthSignInRoute
   '/_auth/sign-up': typeof AuthSignUpRoute
+  '/invoices/$orderId': typeof InvoicesOrderIdRoute
   '/_app/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/invoice'
     | '/cart'
     | '/checkout'
     | '/orders'
     | '/profile'
     | '/sign-in'
     | '/sign-up'
+    | '/invoices/$orderId'
     | '/restaurant/$restaurantId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/invoice'
     | '/cart'
     | '/checkout'
     | '/orders'
     | '/profile'
     | '/sign-in'
     | '/sign-up'
+    | '/invoices/$orderId'
     | '/restaurant/$restaurantId'
   id:
     | '__root__'
     | '/'
     | '/_app'
-    | '/invoice'
     | '/_app/cart'
     | '/_app/checkout'
     | '/_app/orders'
     | '/_app/profile'
     | '/_auth/sign-in'
     | '/_auth/sign-up'
+    | '/invoices/$orderId'
     | '/_app/restaurant/$restaurantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
-  InvoiceRoute: typeof InvoiceRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
+  InvoicesOrderIdRoute: typeof InvoicesOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/invoice': {
-      id: '/invoice'
-      path: '/invoice'
-      fullPath: '/invoice'
-      preLoaderRoute: typeof InvoiceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -172,6 +165,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invoices/$orderId': {
+      id: '/invoices/$orderId'
+      path: '/invoices/$orderId'
+      fullPath: '/invoices/$orderId'
+      preLoaderRoute: typeof InvoicesOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/sign-up': {
@@ -249,9 +249,9 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
-  InvoiceRoute: InvoiceRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
+  InvoicesOrderIdRoute: InvoicesOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
