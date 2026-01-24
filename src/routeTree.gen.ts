@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as InvoiceRouteImport } from './routes/invoice'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
@@ -19,6 +20,11 @@ import { Route as AppCheckoutRouteImport } from './routes/_app/checkout'
 import { Route as AppCartRouteImport } from './routes/_app/cart'
 import { Route as AppRestaurantRestaurantIdRouteImport } from './routes/_app/restaurant.$restaurantId'
 
+const InvoiceRoute = InvoiceRouteImport.update({
+  id: '/invoice',
+  path: '/invoice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -67,6 +73,7 @@ const AppRestaurantRestaurantIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/invoice': typeof InvoiceRoute
   '/cart': typeof AppCartRoute
   '/checkout': typeof AppCheckoutRoute
   '/orders': typeof AppOrdersRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/invoice': typeof InvoiceRoute
   '/cart': typeof AppCartRoute
   '/checkout': typeof AppCheckoutRoute
   '/orders': typeof AppOrdersRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteRouteWithChildren
+  '/invoice': typeof InvoiceRoute
   '/_app/cart': typeof AppCartRoute
   '/_app/checkout': typeof AppCheckoutRoute
   '/_app/orders': typeof AppOrdersRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/invoice'
     | '/cart'
     | '/checkout'
     | '/orders'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/invoice'
     | '/cart'
     | '/checkout'
     | '/orders'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/invoice'
     | '/_app/cart'
     | '/_app/checkout'
     | '/_app/orders'
@@ -134,12 +146,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
+  InvoiceRoute: typeof InvoiceRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/invoice': {
+      id: '/invoice'
+      path: '/invoice'
+      fullPath: '/invoice'
+      preLoaderRoute: typeof InvoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -229,6 +249,7 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
+  InvoiceRoute: InvoiceRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
 }
