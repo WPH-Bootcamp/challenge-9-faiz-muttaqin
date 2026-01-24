@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Star, Search, AlertCircle } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ const categories = [
 ]
 
 function HomePage() {
+  const navigate = useNavigate()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [visibleCount, setVisibleCount] = useState(12)
@@ -82,9 +83,11 @@ function HomePage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Navigate to search results or filter
-    if (searchQuery) {
-      // Handle search
+    if (searchQuery.trim()) {
+      navigate({ 
+        to: '/restaurant', 
+        search: { q: searchQuery.trim() } 
+      })
     }
   }
 
@@ -178,7 +181,7 @@ function HomePage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Recommended</h2>
               {isAuthenticated && (
-                <Link to="/" className="text-primary hover:underline font-medium">
+                <Link to="/restaurant" className="text-primary hover:underline font-medium">
                   See All
                 </Link>
               )}

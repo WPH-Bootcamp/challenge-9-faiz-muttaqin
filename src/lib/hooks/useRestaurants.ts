@@ -33,7 +33,7 @@ export interface RestaurantParams {
   search?: string
   minPrice?: number
   maxPrice?: number
-  minRating?: number
+  rating?: number
   limit?: number
 }
 
@@ -52,13 +52,14 @@ export function useRecommendedRestaurants(options?: { enabled?: boolean }) {
 }
 
 // Get nearby restaurants
-export function useNearbyRestaurants() {
+export function useNearbyRestaurants(options?: { enabled?: boolean }) {
   return useQuery<RestaurantsResponse>({
     queryKey: ['restaurants', 'nearby'],
     queryFn: async () => {
       const response = await api.get<RestaurantsResponse>('/api/resto/nearby')
       return response.data
     },
+    enabled: options?.enabled !== undefined ? options.enabled : true,
   })
 }
 
@@ -93,7 +94,7 @@ export function useSearchRestaurants(params: RestaurantParams) {
 }
 
 // Get all restaurants with filters
-export function useRestaurants(params?: RestaurantParams) {
+export function useRestaurants(params?: RestaurantParams, options?: { enabled?: boolean }) {
   return useQuery<RestaurantsResponse>({
     queryKey: ['restaurants', params],
     queryFn: async () => {
@@ -102,6 +103,7 @@ export function useRestaurants(params?: RestaurantParams) {
       })
       return response.data
     },
+    enabled: options?.enabled !== undefined ? options.enabled : true,
   })
 }
 
