@@ -3,35 +3,40 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, type ErrorResponse } from '../api'
 
 export interface OrderItem {
-  id: number
   menuId: number
-  quantity: number
+  menuName: string
   price: number
-  menu: {
-    id: number
-    foodName: string
-    price: number
-    type: string
-    image?: string
-  }
+  image?: string
+  quantity: number
+  itemTotal: number
 }
 
-export interface Order {
-  transactionId: string
-  userId: number
-  paymentMethod: string
-  price: number
-  serviceFee: number
-  deliveryFee: number
-  totalPrice: number
-  status: 'preparing' | 'on_the_way' | 'delivered' | 'done' | 'cancelled'
-  createdAt: string
+export interface OrderRestaurant {
   restaurant: {
     id: number
     name: string
     logo?: string
   }
   items: OrderItem[]
+  subtotal: number
+}
+
+export interface Order {
+  id: number
+  transactionId: string
+  status: 'preparing' | 'on_the_way' | 'delivered' | 'done' | 'cancelled'
+  paymentMethod: string
+  deliveryAddress: string
+  phone: string
+  pricing: {
+    subtotal: number
+    serviceFee: number
+    deliveryFee: number
+    totalPrice: number
+  }
+  restaurants: OrderRestaurant[]
+  createdAt: string
+  updatedAt: string
 }
 
 export interface OrdersResponse {
@@ -40,18 +45,23 @@ export interface OrdersResponse {
   data: {
     orders: Order[]
     pagination: {
-      currentPage: number
+      page: number
+      limit: number
+      total: number
       totalPages: number
-      totalOrders: number
-      ordersPerPage: number
+    }
+    filter?: {
+      status?: string
     }
   }
 }
 
 export interface CreateReviewRequest {
   transactionId: string
+  restaurantId: number
   star: number
   comment: string
+  menuIds?: number[]
 }
 
 export interface ReviewResponse {

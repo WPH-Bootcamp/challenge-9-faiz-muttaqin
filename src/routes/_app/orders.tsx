@@ -33,11 +33,12 @@ import { useLogout } from '@/lib/hooks/useAuth'
 
 interface ReviewDialogProps {
     transactionId: string
+    restaurantId: number
     restaurantName: string
     onSuccess: () => void
 }
 
-function ReviewDialog({ transactionId, restaurantName, onSuccess }: ReviewDialogProps) {
+function ReviewDialog({ transactionId, restaurantId, restaurantName, onSuccess }: ReviewDialogProps) {
     const [rating, setRating] = useState(0)
     const [review, setReview] = useState('')
     const [open, setOpen] = useState(false)
@@ -52,6 +53,7 @@ function ReviewDialog({ transactionId, restaurantName, onSuccess }: ReviewDialog
         createReview.mutate(
             {
                 transactionId,
+                restaurantId,
                 star: rating,
                 comment: review,
             },
@@ -169,9 +171,12 @@ function OrdersPage() {
     }
 
     const orders = ordersData?.data?.orders || []
-    const filteredOrders = orders.filter((order) =>
-        searchQuery === '' || order?.restaurant?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredOrders = orders.filter((order) => {
+        if (searchQuery === '') return true
+        return order.restaurants?.some(r => 
+            r?.restaurant?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    })
 
     return (
         <>
@@ -288,61 +293,103 @@ function OrdersPage() {
                                                 {filteredOrders.map((order) => (
                                                     <Card key={order.transactionId}>
                                                         <CardContent className="p-6 space-y-4">
-                                                            {/* Restaurant Header */}
-                                                            <Link
-                                                                to="/restaurant/$restaurantId"
-                                                                params={{ restaurantId: String(order?.restaurant?.id || '') }}
-                                                                className="flex items-center gap-2 hover:opacity-80"
-                                                            >
-                                                                {order?.restaurant?.logo ? (
-                                                                    <img
-                                                                        src={order.restaurant.logo}
-                                                                        alt={order.restaurant.name}
-                                                                        className="w-8 h-8 rounded object-cover"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                                                                        <span className="text-white font-bold text-xs">
-                                                                            {order?.restaurant?.name?.slice(0, 2).toUpperCase() || 'R'}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                                <span className="font-semibold">{order?.restaurant?.name || 'Restaurant'}</span>
-                                                            </Link>
+                                                            {/* Order Info Header */}
+                                                            <div className="flex justify-between items-start">
+                                                                <div>
+                                                                    <p className="text-sm text-muted-foreground">Order ID: {order.transactionId}</p>
+                                                                    <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleString('id-ID')}</p>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                                                        order.status === 'done' ? 'bg-green-100 text-green-700' :
+                                                                        order.status === 'preparing' ? 'bg-yellow-100 text-yellow-700' :
+                                                                        order.status === 'on_the_way' ? 'bg-blue-100 text-blue-700' :
+                                                                        order.status === 'delivered' ? 'bg-purple-100 text-purple-700' :
+                                                                        'bg-gray-100 text-gray-700'
+                                                                    }`}>
+                                                                        {order.status === 'on_the_way' ? 'On the Way' : 
+                                                                         order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
 
-                                                            {/* Order Items */}
-                                                            {order.items?.map((item, index) => (
-                                                                <div key={item?.id || index} className="flex items-center gap-4">
-                                                                    {item?.menu?.image ? (
-                                                                        <img
-                                                                            src={item.menu.image}
-                                                                            alt={item.menu.foodName}
-                                                                            className="w-20 h-20 rounded object-cover"
-                                                                        />
-                                                                    ) : (
-                                                                        <div className="w-20 h-20 bg-muted rounded flex items-center justify-center">
-                                                                            <span className="text-xs text-muted-foreground">No image</span>
+                                                            {/* Restaurants and Items */}
+                                                            {order.restaurants?.map((restaurantOrder, resIndex) => (
+                                                                <div key={resIndex} className="space-y-3">
+                                                                    {/* Restaurant Header */}
+                                                                    <Link
+                                                                        to="/restaurant/$restaurantId"
+                                                                        params={{ restaurantId: String(restaurantOrder?.restaurant?.id || '') }}
+                                                                        className="flex items-center gap-2 hover:opacity-80"
+                                                                    >
+                                                                        {restaurantOrder?.restaurant?.logo ? (
+                                                                            <img
+                                                                                src={restaurantOrder.restaurant.logo}
+                                                                                alt={restaurantOrder.restaurant.name}
+                                                                                className="w-8 h-8 rounded object-cover"
+                                                                            />
+                                                                        ) : (
+                                                                            <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
+                                                                                <span className="text-white font-bold text-xs">
+                                                                                    {restaurantOrder?.restaurant?.name?.slice(0, 2).toUpperCase() || 'R'}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                        <span className="font-semibold">{restaurantOrder?.restaurant?.name || 'Restaurant'}</span>
+                                                                    </Link>
+
+                                                                    {/* Order Items */}
+                                                                    {restaurantOrder.items?.map((item, itemIndex) => (
+                                                                        <div key={itemIndex} className="flex items-center gap-4 pl-10">
+                                                                            {item?.image ? (
+                                                                                <img
+                                                                                    src={item.image}
+                                                                                    alt={item.menuName}
+                                                                                    className="w-16 h-16 rounded object-cover"
+                                                                                />
+                                                                            ) : (
+                                                                                <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                                                                                    <span className="text-xs text-muted-foreground">No image</span>
+                                                                                </div>
+                                                                            )}
+                                                                            <div className="flex-1">
+                                                                                <h3 className="font-semibold text-sm">{item?.menuName || 'Unknown Item'}</h3>
+                                                                                <p className="text-xs text-muted-foreground">
+                                                                                    {item?.quantity || 0} x {formatPrice(item?.price || 0)} = {formatPrice(item?.itemTotal || 0)}
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
-                                                                    )}
-                                                                    <div className="flex-1">
-                                                                        <h3 className="font-semibold">{item?.menu?.foodName || 'Unknown Item'}</h3>
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                            {item?.quantity || 0} x {formatPrice(item?.price || 0)}
-                                                                        </p>
-                                                                    </div>
+                                                                    )) || []}
                                                                 </div>
                                                             )) || []}
+
+                                                            {/* Pricing Details */}
+                                                            <div className="border-t pt-4 space-y-2">
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-muted-foreground">Subtotal</span>
+                                                                    <span>{formatPrice(order?.pricing?.subtotal)}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-muted-foreground">Delivery Fee</span>
+                                                                    <span>{formatPrice(order?.pricing?.deliveryFee)}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-muted-foreground">Service Fee</span>
+                                                                    <span>{formatPrice(order?.pricing?.serviceFee)}</span>
+                                                                </div>
+                                                            </div>
 
                                                             {/* Total and Action */}
                                                             <div className="flex items-center justify-between pt-4 border-t">
                                                                 <div>
-                                                                    <p className="text-sm text-muted-foreground">Total</p>
-                                                                    <p className="text-xl font-bold">{formatPrice(order?.totalPrice)}</p>
+                                                                    <p className="text-sm text-muted-foreground">Total Payment</p>
+                                                                    <p className="text-xl font-bold">{formatPrice(order?.pricing?.totalPrice)}</p>
                                                                 </div>
-                                                                {order.status === 'done' && (
+                                                                {order.status === 'done' && order.restaurants?.[0]?.restaurant && (
                                                                     <ReviewDialog
                                                                         transactionId={order.transactionId}
-                                                                        restaurantName={order?.restaurant?.name || 'Restaurant'}
+                                                                        restaurantId={order.restaurants[0].restaurant.id}
+                                                                        restaurantName={order.restaurants[0].restaurant.name}
                                                                         onSuccess={() => refetch()}
                                                                     />
                                                                 )}
