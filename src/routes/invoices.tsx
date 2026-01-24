@@ -14,17 +14,28 @@ interface InvoiceData {
   totalPrice: number
   status: string
   createdAt: string
-  itemCount: number
+  restaurant: {
+    id: number
+    name: string
+    logo?: string
+  }
+  items: {
+    menuId: number
+    menuName: string
+    price: number
+    image?: string
+    quantity: number
+    itemTotal: number
+  }[]
 }
 
-export const Route = createFileRoute('/invoices/$orderId')({
+export const Route = createFileRoute('/invoices')({
   component: InvoiceComponent,
 })
 
 function InvoiceComponent() {
   const navigate = useNavigate()
-  const { orderId } = Route.useParams()
-  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(() => {
+  const [invoiceData] = useState<InvoiceData | null>(() => {
     const savedData = localStorage.getItem('invoiceData')
     return savedData ? JSON.parse(savedData) : null
   })
@@ -82,6 +93,43 @@ function InvoiceComponent() {
               </p>
             </div>
 
+            {/* Restaurant and Items */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 pb-3 border-b">
+                {invoiceData.restaurant.logo && (
+                  <img
+                    src={invoiceData.restaurant.logo}
+                    alt={invoiceData.restaurant.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                )}
+                <div>
+                  <h3 className="font-semibold">{invoiceData.restaurant.name}</h3>
+                  <p className="text-xs text-muted-foreground">{invoiceData.items.length} items</p>
+                </div>
+              </div>
+              
+              {/* Order Items */}
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {invoiceData.items.map((item, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.menuName}
+                        className="w-14 h-14 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{item.menuName}</p>
+                      <p className="text-xs text-muted-foreground">{formatPrice(item.price)} × {item.quantity}</p>
+                    </div>
+                    <p className="text-sm font-medium">{formatPrice(item.itemTotal)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Invoice Details */}
             <div className="space-y-3 border-y py-4">
               <div className="flex justify-between text-sm">
@@ -93,7 +141,7 @@ function InvoiceComponent() {
                 <span className="font-medium">{invoiceData.paymentMethod}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Price ({invoiceData.itemCount} items)</span>
+                <span className="text-muted-foreground">Subtotal ({invoiceData.items.length} items)</span>
                 <span className="font-medium">{formatPrice(invoiceData.price)}</span>
               </div>
               <div className="flex justify-between text-sm">

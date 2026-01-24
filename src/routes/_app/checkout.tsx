@@ -106,10 +106,18 @@ function CheckoutPage() {
 
     checkout.mutate(orderData, {
       onSuccess: (response) => {
-        // Save transaction details to localStorage for invoice page
+        // Save complete order details to localStorage for invoice page
         localStorage.setItem('invoiceData', JSON.stringify({
           ...response.data,
-          itemCount: checkoutData.items.length
+          restaurant: checkoutData.restaurant,
+          items: checkoutData.items.map(item => ({
+            menuId: item.menu.id,
+            menuName: item.menu.foodName,
+            price: item.menu.price,
+            image: item.menu.image,
+            quantity: item.quantity,
+            itemTotal: item.menu.price * item.quantity
+          }))
         }))
         // Clear checkout data from localStorage
         localStorage.removeItem('checkoutData')
