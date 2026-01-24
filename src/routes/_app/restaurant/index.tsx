@@ -12,7 +12,7 @@ interface RestaurantSearch {
   q?: string
 }
 
-export const Route = createFileRoute('/_app/restaurant')({
+export const Route = createFileRoute('/_app/restaurant/')({
   component: RestaurantListPage,
   validateSearch: (search: Record<string, unknown>): RestaurantSearch => {
     return {
