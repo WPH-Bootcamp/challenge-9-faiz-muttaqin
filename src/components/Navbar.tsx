@@ -1,11 +1,12 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { FileText, MapPin } from 'lucide-react'
+import { BiLogInCircle } from 'react-icons/bi'  
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -132,9 +133,9 @@ export function Navbar() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={`relative ${!isScrolled && 'text-white hover:bg-white/10'}`}
+                                        className={`p-0 relative ${!isScrolled && 'text-white hover:bg-white/10'}`}
                                     >
-                                        <svg width="24" height="27" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5">
+                                        <svg width="24" height="27" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4">
                                             <path d="M6.66699 7.66667V6.33333C6.66699 4.91885 7.2289 3.56229 8.22909 2.5621C9.22928 1.5619 10.5858 1 12.0003 1C13.4148 1 14.7714 1.5619 15.7716 2.5621C16.7718 3.56229 17.3337 4.91885 17.3337 6.33333V7.66667" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                                             <path fillRule="evenodd" clipRule="evenodd" d="M0.781333 7.11434C-7.94729e-08 7.89567 0 9.15167 0 11.6663V15.6663C0 20.6943 -1.58946e-07 23.209 1.56267 24.7703C3.12533 26.3317 5.63867 26.333 10.6667 26.333H13.3333C18.3613 26.333 20.876 26.333 22.4373 24.7703C23.9987 23.2077 24 20.6943 24 15.6663V11.6663C24 9.15167 24 7.89567 23.2187 7.11434C22.4373 6.33301 21.1813 6.33301 18.6667 6.33301H5.33333C2.81867 6.33301 1.56267 6.33301 0.781333 7.11434ZM9.33333 12.9997C9.33333 12.6461 9.19286 12.3069 8.94281 12.0569C8.69276 11.8068 8.35362 11.6663 8 11.6663C7.64638 11.6663 7.30724 11.8068 7.05719 12.0569C6.80714 12.3069 6.66667 12.6461 6.66667 12.9997V15.6663C6.66667 16.02 6.80714 16.3591 7.05719 16.6091C7.30724 16.8592 7.64638 16.9997 8 16.9997C8.35362 16.9997 8.69276 16.8592 8.94281 16.6091C9.19286 16.3591 9.33333 16.02 9.33333 15.6663V12.9997ZM17.3333 12.9997C17.3333 12.6461 17.1929 12.3069 16.9428 12.0569C16.6928 11.8068 16.3536 11.6663 16 11.6663C15.6464 11.6663 15.3072 11.8068 15.0572 12.0569C14.8071 12.3069 14.6667 12.6461 14.6667 12.9997V15.6663C14.6667 16.02 14.8071 16.3591 15.0572 16.6091C15.3072 16.8592 15.6464 16.9997 16 16.9997C16.3536 16.9997 16.6928 16.8592 16.9428 16.6091C17.1929 16.3591 17.3333 16.02 17.3333 15.6663V12.9997Z" fill="currentColor"/>
                                         </svg>
@@ -171,26 +172,28 @@ export function Navbar() {
                                                 <p className="text-xs text-muted-foreground">{user.email}</p>
                                             </div>
                                         </div>
-                                        <DropdownMenuSeparator />
                                         <Link to="/profile">
                                             <DropdownMenuItem className="cursor-pointer">
+                                                <FileText className="h-4 w-4" />
                                                 Delivery Address
                                             </DropdownMenuItem>
                                         </Link>
                                         <Link to="/orders">
                                             <DropdownMenuItem className="cursor-pointer">
+                                                <MapPin className="h-4 w-4" />
                                                 My Orders
                                             </DropdownMenuItem>
                                         </Link>
-                                        <DropdownMenuSeparator />
                                         <DropdownMenuItem
                                             className="cursor-pointer text-destructive focus:text-destructive"
                                             onClick={() => setShowLogoutDialog(true)}
                                         >
+                                            <BiLogInCircle className="scale-x-[-1]" />
                                             Logout
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
+                                <h3 className="hidden md:block">{user.name}</h3>
                             </>
                         )}
                     </div>

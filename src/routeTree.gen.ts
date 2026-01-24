@@ -18,7 +18,6 @@ import { Route as AppOrdersRouteImport } from './routes/_app/orders'
 import { Route as AppCheckoutRouteImport } from './routes/_app/checkout'
 import { Route as AppCartRouteImport } from './routes/_app/cart'
 import { Route as AppRestaurantRestaurantIdRouteImport } from './routes/_app/restaurant.$restaurantId'
-import { Route as AppRestaurantRestaurantIdOldRouteImport } from './routes/_app/restaurant.$restaurantId.old'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
@@ -65,12 +64,6 @@ const AppRestaurantRestaurantIdRoute =
     path: '/restaurant/$restaurantId',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppRestaurantRestaurantIdOldRoute =
-  AppRestaurantRestaurantIdOldRouteImport.update({
-    id: '/old',
-    path: '/old',
-    getParentRoute: () => AppRestaurantRestaurantIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,8 +73,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
-  '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRouteWithChildren
-  '/restaurant/$restaurantId/old': typeof AppRestaurantRestaurantIdOldRoute
+  '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,8 +83,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
-  '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRouteWithChildren
-  '/restaurant/$restaurantId/old': typeof AppRestaurantRestaurantIdOldRoute
+  '/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,8 +95,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/_auth/sign-in': typeof AuthSignInRoute
   '/_auth/sign-up': typeof AuthSignUpRoute
-  '/_app/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRouteWithChildren
-  '/_app/restaurant/$restaurantId/old': typeof AppRestaurantRestaurantIdOldRoute
+  '/_app/restaurant/$restaurantId': typeof AppRestaurantRestaurantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -118,7 +108,6 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/restaurant/$restaurantId'
-    | '/restaurant/$restaurantId/old'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,7 +118,6 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/restaurant/$restaurantId'
-    | '/restaurant/$restaurantId/old'
   id:
     | '__root__'
     | '/'
@@ -141,7 +129,6 @@ export interface FileRouteTypes {
     | '/_auth/sign-in'
     | '/_auth/sign-up'
     | '/_app/restaurant/$restaurantId'
-    | '/_app/restaurant/$restaurantId/old'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,36 +203,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRestaurantRestaurantIdRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/restaurant/$restaurantId/old': {
-      id: '/_app/restaurant/$restaurantId/old'
-      path: '/old'
-      fullPath: '/restaurant/$restaurantId/old'
-      preLoaderRoute: typeof AppRestaurantRestaurantIdOldRouteImport
-      parentRoute: typeof AppRestaurantRestaurantIdRoute
-    }
   }
 }
-
-interface AppRestaurantRestaurantIdRouteChildren {
-  AppRestaurantRestaurantIdOldRoute: typeof AppRestaurantRestaurantIdOldRoute
-}
-
-const AppRestaurantRestaurantIdRouteChildren: AppRestaurantRestaurantIdRouteChildren =
-  {
-    AppRestaurantRestaurantIdOldRoute: AppRestaurantRestaurantIdOldRoute,
-  }
-
-const AppRestaurantRestaurantIdRouteWithChildren =
-  AppRestaurantRestaurantIdRoute._addFileChildren(
-    AppRestaurantRestaurantIdRouteChildren,
-  )
 
 interface AppRouteRouteChildren {
   AppCartRoute: typeof AppCartRoute
   AppCheckoutRoute: typeof AppCheckoutRoute
   AppOrdersRoute: typeof AppOrdersRoute
   AppProfileRoute: typeof AppProfileRoute
-  AppRestaurantRestaurantIdRoute: typeof AppRestaurantRestaurantIdRouteWithChildren
+  AppRestaurantRestaurantIdRoute: typeof AppRestaurantRestaurantIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -253,7 +219,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCheckoutRoute: AppCheckoutRoute,
   AppOrdersRoute: AppOrdersRoute,
   AppProfileRoute: AppProfileRoute,
-  AppRestaurantRestaurantIdRoute: AppRestaurantRestaurantIdRouteWithChildren,
+  AppRestaurantRestaurantIdRoute: AppRestaurantRestaurantIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

@@ -45,7 +45,11 @@ function CheckoutPage() {
   const navigate = useNavigate()
   const [selectedPayment, setSelectedPayment] = useState('BNI Bank Negara Indonesia')
   const [notes, setNotes] = useState('')
-  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null)
+  // Use lazy initialization to load from localStorage once on mount
+  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(() => {
+    const savedData = localStorage.getItem('checkoutData')
+    return savedData ? JSON.parse(savedData) : null
+  })
   
   const { data: profileData } = useProfile()
   const checkout = useCheckout()
@@ -53,16 +57,12 @@ function CheckoutPage() {
 
   const user = profileData?.data
 
-  // Load checkout data from localStorage
+  // Redirect if no checkout data
   useEffect(() => {
-    const savedData = localStorage.getItem('checkoutData')
-    if (savedData) {
-      setCheckoutData(JSON.parse(savedData))
-    } else {
-      // Redirect back to cart if no data
+    if (!checkoutData) {
       navigate({ to: '/cart' })
     }
-  }, [navigate])
+  }, [checkoutData, navigate])
 
   const formatPrice = (price: number) => {
     return `Rp${price.toLocaleString('id-ID')}`

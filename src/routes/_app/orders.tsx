@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Search, Star, FileText, MapPin, LogOut, AlertCircle } from 'lucide-react'
+import { Search, Star, FileText, MapPin, LogOut, AlertCircle, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,7 +27,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { useOrders, useCreateReview } from '@/lib/hooks/useOrders'
+import { useOrders, useCreateReview, useMyReviews, useUpdateReview, useDeleteReview } from '@/lib/hooks/useOrders'
 import { useProfile } from '@/lib/hooks/useProfile'
 import { useLogout } from '@/lib/hooks/useAuth'
 
@@ -35,14 +35,21 @@ interface ReviewDialogProps {
     transactionId: string
     restaurantId: number
     restaurantName: string
+    existingReview?: {
+        id: number
+        star: number
+        comment: string
+    }
     onSuccess: () => void
 }
 
-function ReviewDialog({ transactionId, restaurantId, restaurantName, onSuccess }: ReviewDialogProps) {
-    const [rating, setRating] = useState(0)
-    const [review, setReview] = useState('')
+function ReviewDialog({ transactionId, restaurantId, restaurantName, existingReview, onSuccess }: ReviewDialogProps) {
+    const [rating, setRating] = useState(existingReview?.star || 0)
+    const [review, setReview] = useState(existingReview?.comment || '')
     const [open, setOpen] = useState(false)
     const createReview = useCreateReview()
+    const updateReview = useUpdateReview()
+    const isEditMode = !!existingReview
 
     const handleSubmit = () => {
         if (rating === 0) {
@@ -50,32 +57,52 @@ function ReviewDialog({ transactionId, restaurantId, restaurantName, onSuccess }
             return
         }
 
-        createReview.mutate(
-            {
-                transactionId,
-                restaurantId,
-                star: rating,
-                comment: review,
-            },
-            {
-                onSuccess: () => {
-                    setOpen(false)
-                    setRating(0)
-                    setReview('')
-                    onSuccess()
+        if (isEditMode) {
+            updateReview.mutate(
+                {
+                    id: existingReview.id,
+                    data: {
+                        star: rating,
+                        comment: review,
+                    },
                 },
-            }
-        )
+                {
+                    onSuccess: () => {
+                        setOpen(false)
+                        onSuccess()
+                    },
+                }
+            )
+        } else {
+            createReview.mutate(
+                {
+                    transactionId,
+                    restaurantId,
+                    star: rating,
+                    comment: review,
+                },
+                {
+                    onSuccess: () => {
+                        setOpen(false)
+                        setRating(0)
+                        setReview('')
+                        onSuccess()
+                    },
+                }
+            )
+        }
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-red-600 hover:bg-red-700">Give Review</Button>
+                <Button className="bg-red-600 hover:bg-red-700">
+                    {isEditMode ? 'Edit Review' : 'Give Review'}
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Review {restaurantName}</DialogTitle>
+                    <DialogTitle>{isEditMode ? 'Edit' : 'Review'} {restaurantName}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div>
@@ -105,20 +132,20 @@ function ReviewDialog({ transactionId, restaurantId, restaurantName, onSuccess }
                         onChange={(e) => setReview(e.target.value)}
                         rows={4}
                     />
-                    {createReview.isError && (
+                    {(createReview.isError || updateReview.isError) && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>
-                                Failed to submit review. Please try again.
+                                Failed to {isEditMode ? 'update' : 'submit'} review. Please try again.
                             </AlertDescription>
                         </Alert>
                     )}
                     <Button
                         onClick={handleSubmit}
-                        disabled={createReview.isPending || rating === 0}
+                        disabled={createReview.isPending || updateReview.isPending || rating === 0}
                         className="w-full bg-red-600 hover:bg-red-700"
                     >
-                        {createReview.isPending ? 'Sending...' : 'Send'}
+                        {createReview.isPending || updateReview.isPending ? 'Sending...' : 'Send'}
                     </Button>
                 </div>
             </DialogContent>
@@ -140,6 +167,8 @@ function OrdersPage() {
     
     const { data: profileData } = useProfile()
     const { data: ordersData, isLoading, isError, refetch } = useOrders(getApiStatus(activeTab))
+    const { data: myReviewsData } = useMyReviews()
+    const deleteReview = useDeleteReview()
     const logout = useLogout()
 
     const user = profileData?.data
@@ -168,6 +197,18 @@ function OrdersPage() {
 
     const formatPrice = (price: number | undefined | null) => {
         return `Rp${(price || 0).toLocaleString('id-ID')}`
+    }
+
+    const getOrderReview = (transactionId: string) => {
+        return myReviewsData?.data?.reviews?.find(
+            (review) => review.transactionId === transactionId
+        )
+    }
+
+    const handleDeleteReview = (reviewId: number) => {
+        if (confirm('Are you sure you want to delete this review?')) {
+            deleteReview.mutate(reviewId)
+        }
     }
 
     const orders = ordersData?.data?.orders || []
@@ -385,14 +426,31 @@ function OrdersPage() {
                                                                     <p className="text-sm text-muted-foreground">Total Payment</p>
                                                                     <p className="text-xl font-bold">{formatPrice(order?.pricing?.totalPrice)}</p>
                                                                 </div>
-                                                                {order.status === 'done' && order.restaurants?.[0]?.restaurant && (
-                                                                    <ReviewDialog
-                                                                        transactionId={order.transactionId}
-                                                                        restaurantId={order.restaurants[0].restaurant.id}
-                                                                        restaurantName={order.restaurants[0].restaurant.name}
-                                                                        onSuccess={() => refetch()}
-                                                                    />
-                                                                )}
+                                                                {order.status === 'done' && order.restaurants?.[0]?.restaurant && (() => {
+                                                                    const existingReview = getOrderReview(order.transactionId)
+                                                                    return (
+                                                                        <div className="flex gap-2">
+                                                                            <ReviewDialog
+                                                                                transactionId={order.transactionId}
+                                                                                restaurantId={order.restaurants[0].restaurant.id}
+                                                                                restaurantName={order.restaurants[0].restaurant.name}
+                                                                                existingReview={existingReview}
+                                                                                onSuccess={() => refetch()}
+                                                                            />
+                                                                            {existingReview && (
+                                                                                <Button
+                                                                                    variant="outline"
+                                                                                    size="icon"
+                                                                                    onClick={() => handleDeleteReview(existingReview.id)}
+                                                                                    disabled={deleteReview.isPending}
+                                                                                    className="text-destructive hover:text-destructive"
+                                                                                >
+                                                                                    <Trash className="h-4 w-4" />
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
+                                                                    )
+                                                                })()}
                                                             </div>
                                                         </CardContent>
                                                     </Card>
