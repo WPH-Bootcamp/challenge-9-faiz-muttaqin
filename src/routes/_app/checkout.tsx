@@ -105,11 +105,16 @@ function CheckoutPage() {
     }
 
     checkout.mutate(orderData, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        // Save transaction details to localStorage for invoice page
+        localStorage.setItem('invoiceData', JSON.stringify({
+          ...response.data,
+          itemCount: checkoutData.items.length
+        }))
         // Clear checkout data from localStorage
         localStorage.removeItem('checkoutData')
-        // Navigate to orders page
-        navigate({ to: '/orders' })
+        // Navigate to invoice page
+        navigate({ to: `/invoices/${response.data.transactionId}` })
       }
     })
   }
