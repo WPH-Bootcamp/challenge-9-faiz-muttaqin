@@ -8,9 +8,13 @@ pada alur dasar: eksplor menu, filter & pencarian, keranjang, dan checkout seder
 
 # Repo Backend & Figma
 
-- Backend : https://be-restaurant-api-889893107835.asia-southeast2.run.app/apiswagger/
+- Backend : https://restaurant-be-400174736012.asia-southeast2.run.app/apiswagger/
 
 - [Figma Design Link](https://www.figma.com/design/1By7DB1gDCNEoW62UqLUrA/Restaurant-App?node-id=2210-441096&t=Mb8iKuBNaG5z903g-1)
+
+# Preview
+
+https://foody.faizmuttaqin.com/
 
 # Tech Stack Wajib
 
