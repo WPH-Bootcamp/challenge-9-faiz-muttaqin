@@ -122,7 +122,7 @@ function CheckoutPage() {
         // Clear checkout data from localStorage
         localStorage.removeItem('checkoutData')
         // Navigate to invoice page
-        navigate({ to: `/invoices/${response.data.transactionId}` })
+        navigate({ to: '/invoices' })
       }
     })
   }
