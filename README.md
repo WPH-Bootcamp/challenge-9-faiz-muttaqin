@@ -1,3 +1,4 @@
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/n7nQ-oYq)
 # Challenge 9 - Restaurant Web Frontend (Next JS + TypeScript)
 
 # Description
@@ -7,9 +8,13 @@ pada alur dasar: eksplor menu, filter & pencarian, keranjang, dan checkout seder
 
 # Repo Backend & Figma
 
-- Backend : https://be-restaurant-api-889893107835.asia-southeast2.run.app/apiswagger/
+- Backend : https://restaurant-be-400174736012.asia-southeast2.run.app/apiswagger/
 
 - [Figma Design Link](https://www.figma.com/design/1By7DB1gDCNEoW62UqLUrA/Restaurant-App?node-id=2210-441096&t=Mb8iKuBNaG5z903g-1)
+
+# Preview
+
+https://foody.faizmuttaqin.com/
 
 # Tech Stack Wajib
 
